@@ -1,0 +1,35 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"  # Express 서버 포트
+    volumes:
+      - ./backend:/app
+    # depends_on:
+    #   - db  # MySQL 필요시
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"  # React 개발 서버
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # 볼륨 최적화
+    stdin_open: true
+    tty: true
+
+  # db:  # MySQL (초기 미사용, 필요시 활성화)
+  #   image: mysql:8.0
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpassword
+  #     MYSQL_DATABASE: citation_db
+  #   volumes:
+  #     - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

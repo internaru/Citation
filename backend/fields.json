@@ -1,0 +1,103 @@
+{
+  "types": {
+    "webpage": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "webpage" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": false },
+        { "name": "editor", "label": "Editor", "required": false },
+        { "name": "container-title", "label": "Container Title", "required": false },
+        { "name": "publisher", "label": "Publisher", "required": false },
+        { "name": "publisher-place", "label": "Publisher Place", "required": false },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "accessed", "label": "Accessed Date", "required": true },
+        { "name": "URL", "label": "URL", "required": true },
+        { "name": "DOI", "label": "DOI", "required": false },
+        { "name": "ISSN", "label": "ISSN", "required": false },
+        { "name": "ISBN", "label": "ISBN", "required": false },
+        { "name": "volume", "label": "Volume", "required": false },
+        { "name": "issue", "label": "Issue", "required": false },
+        { "name": "page", "label": "Page", "required": false },
+        { "name": "page-first", "label": "First Page", "required": false },
+        { "name": "edition", "label": "Edition", "required": false },
+        { "name": "number", "label": "Number", "required": false },
+        { "name": "institution", "label": "Institution", "required": false },
+        { "name": "genre", "label": "Genre", "required": false }
+      ]
+    },
+    "article-journal": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "article-journal" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
+        { "name": "container-title", "label": "Journal Title", "required": true },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "DOI", "label": "DOI", "required": false },
+        { "name": "ISSN", "label": "ISSN", "required": false },
+        { "name": "volume", "label": "Volume", "required": true },
+        { "name": "issue", "label": "Issue", "required": false },
+        { "name": "page", "label": "Page", "required": true },
+        { "name": "page-first", "label": "First Page", "required": false }
+      ]
+    },
+    "article-newspaper": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "article-journal" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
+        { "name": "container-title", "label": "Journal Title", "required": true },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "page", "label": "Page", "required": true },
+        { "name": "page-first", "label": "First Page", "required": false }
+      ]
+    },
+    "book": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "article-journal" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
+        { "name": "editor", "label": "Editor", "required": true },
+        { "name": "publisher", "label": "Publisher", "required": true },
+        { "name": "publisher-place", "label": "Publisher Place", "required": true },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "ISBN", "label": "ISBN", "required": false },
+        { "name": "edition", "label": "Edition", "required": false }
+      ]
+    },
+    "report": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "article-journal" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
+        { "name": "publisher", "label": "Publisher", "required": true },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "DOI", "label": "DOI", "required": false },
+        { "name": "ISSN", "label": "ISSN", "required": false },
+        { "name": "volume", "label": "Volume", "required": true },
+        { "name": "issue", "label": "Issue", "required": false },
+        { "name": "number", "label": "Number", "required": false },
+        { "name": "institution", "label": "Institution", "required": false }
+      ]
+    },
+    "video": {
+      "fields": [
+        { "name": "id", "label": "ID", "required": true },
+        { "name": "type", "label": "Type", "required": true, "default": "article-journal" },
+        { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
+        { "name": "issued", "label": "Issued Date", "required": true },
+        { "name": "DOI", "label": "DOI", "required": false },
+        { "name": "ISSN", "label": "ISSN", "required": false },
+        { "name": "volume", "label": "Volume", "required": true },
+        { "name": "issue", "label": "Issue", "required": false },
+        { "name": "institution", "label": "Institution", "required": false },
+        { "name": "genre", "label": "Genre", "required": false }
+      ]
+    }
+  }
+}

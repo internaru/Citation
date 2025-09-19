@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "patch-package": "^8.0.0"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "citation-js": "^0.7.20",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
