@@ -54,8 +54,9 @@ app.post('/generate', (req, res) => {
     if (missing.length > 0) {
       return res.status(400).json({ error: `Missing fields: ${missing.map(f => f.name).join(', ')}` });
     }
-    const input = { ...data, type: typeFields.find(f => f.name === 'type')?.default || type };
+    const input = { ...data, type }; // id 생략, type은 요청에서
     const cite = new Cite(input);
+    console.log('Cite data:', cite.data); // id 자동 생성 확인
     const output = cite.format('bibliography', { format: 'text', template: style.toLowerCase() });
     res.json({ citation: output });
   } catch (err) {

@@ -12,7 +12,6 @@ function App() {
   const [citation, setCitation] = useState('');
   const [error, setError] = useState('');
 
-  // 백엔드에서 타입 목록 로드
   useEffect(() => {
     axios
       .get('http://localhost:5000/types')
@@ -65,12 +64,6 @@ function App() {
         data: {
           ...formData,
           type: selectedType,
-          issued: formData.issued
-            ? { 'date-parts': [[parseInt(formData.issued.split('-')[0]), parseInt(formData.issued.split('-')[1] || 1), parseInt(formData.issued.split('-')[2] || 1)]] }
-            : undefined,
-          accessed: formData.accessed
-            ? { 'date-parts': [[parseInt(formData.accessed.split('-')[0]), parseInt(formData.accessed.split('-')[1] || 1), parseInt(formData.accessed.split('-')[2] || 1)]] }
-            : undefined,
         },
       });
       setCitation(response.data.citation);
