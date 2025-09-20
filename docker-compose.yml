@@ -1,4 +1,3 @@
-
 services:
   backend:
     build: ./backend
@@ -10,28 +9,31 @@ services:
     #   - db  # MySQL 필요시
     environment:
       - NODE_ENV=development
+    command: npx nodemon server.js  # nodemon으로 핫 리로딩 활성화
 
   frontend:
     build: ./frontend
     ports:
       - "3000:3000"  # React 개발 서버
     volumes:
-      - ./frontend:/app
+      - ./frontend/src:/app/src  # src만 마운트하여 빠른 반영
       - /app/node_modules  # 볼륨 최적화
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # React 핫 리로딩
     stdin_open: true
     tty: true
     depends_on:
       - backend # 백엔드가 먼저 시작되도록 보장
 
-  # db:  # MySQL (초기 미사용, 필요시 활성화)
-  #   image: mysql:8.0
-  #   ports:
-  #     - "3306:3306"
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: rootpassword
-  #     MYSQL_DATABASE: citation_db
-  #   volumes:
-  #     - db-data:/var/lib/mysql
+# db:  # MySQL (초기 미사용, 필요시 활성화)
+#   image: mysql:8.0
+#   ports:
+#     - "3306:3306"
+#   environment:
+#     MYSQL_ROOT_PASSWORD: rootpassword
+#     MYSQL_DATABASE: citation_db
+#   volumes:
+#     - db-data:/var/lib/mysql
 
 volumes:
   db-data:

@@ -13,45 +13,58 @@ function App() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/types')
-      .then((res) => {
+    const fetchTypes = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/types', { timeout: 5000 });
+        console.log('Types loaded:', res.data);
         setTypes(res.data);
         if (res.data.length > 0) {
           setSelectedType(res.data[0]);
-          axios
-            .get(`http://localhost:5000/fields/${res.data[0]}`)
-            .then((fieldRes) => {
-              setFields(fieldRes.data);
-              setFormData({ type: res.data[0] });
-            })
-            .catch((fieldErr) => {
-              console.error('필드 로드 오류:', fieldErr);
-              setError('필드를 로드할 수 없습니다.');
-            });
+          await fetchFields(res.data[0]);
         }
-      })
-      .catch((err) => {
-        console.error('타입 목록 로드 오류:', err);
-        setError('타입 목록을 로드할 수 없습니다.');
-      });
+      } catch (err) {
+        console.error('Type load error:', err.message);
+        setError('타입 목록을 로드할 수 없습니다: ' + err.message);
+      }
+    };
+
+    const fetchFields = async (type) => {
+      try {
+        const res = await axios.get(`http://localhost:5000/fields/${type}`, { timeout: 5000 });
+        console.log('Loaded fields for', type, ':', res.data);
+        setFields(res.data);
+        setFormData({ type });
+      } catch (err) {
+        console.error('Field load error:', err.message);
+        setError('필드를 로드할 수 없습니다: ' + err.message);
+      }
+    };
+
+    fetchTypes();
   }, []);
 
   const handleTypeChange = async (e) => {
     const type = e.target.value;
+    console.log('Selected type:', type);
     setSelectedType(type);
     setFormData({ type });
     try {
-      const res = await axios.get(`http://localhost:5000/fields/${type}`);
+      const res = await axios.get(`http://localhost:5000/fields/${type}`, { timeout: 5000 });
+      console.log('Loaded fields for', type, ':', res.data);
       setFields(res.data);
     } catch (err) {
-      console.error('필드 로드 오류:', err);
-      setError('필드를 로드할 수 없습니다.');
+      console.error('Field load error:', err.message);
+      setError('필드를 로드할 수 없습니다: ' + err.message);
     }
   };
 
   const handleInputChange = (e) => {
+    console.log(`Input change: ${e.target.name} = ${e.target.value}, type = ${e.target.type}`);
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleInputClick = (e) => {
+    console.log(`Input clicked: ${e.target.name}, type = ${e.target.type}`);
   };
 
   const generateCitation = async () => {
@@ -64,11 +77,17 @@ function App() {
         data: {
           ...formData,
           type: selectedType,
+          issued: formData.issued
+            ? { 'date-parts': [[parseInt(formData.issued.split('-')[0]), parseInt(formData.issued.split('-')[1] || 1), parseInt(formData.issued.split('-')[2] || 1)]] }
+            : undefined,
+          accessed: formData.accessed
+            ? { 'date-parts': [[parseInt(formData.accessed.split('-')[0]), parseInt(formData.accessed.split('-')[1] || 1), parseInt(formData.accessed.split('-')[2] || 1)]] }
+            : undefined,
         },
-      });
+      }, { timeout: 5000 });
       setCitation(response.data.citation);
     } catch (err) {
-      setError(err.response?.data?.error || '인용문 생성 중 오류가 발생했습니다.');
+      setError(err.response?.data?.error || '인용문 생성 중 오류가 발생했습니다: ' + err.message);
     }
   };
 
@@ -79,7 +98,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>인용문 생성기</h1>
+      <h1>ICS Citation Generator (Ver1.0)</h1>
       <select onChange={(e) => setStyle(e.target.value)} value={style}>
         <option value="apa">APA</option>
         <option value="mla">MLA</option>
@@ -101,8 +120,9 @@ function App() {
           </label>
           <input
             name={f.name}
-            type={f.name.includes('date') ? 'date' : 'text'}
+            type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
             onChange={handleInputChange}
+            onClick={handleInputClick}
             value={formData[f.name] || ''}
             required={f.required}
           />
