@@ -19,28 +19,17 @@ function App() {
       .then((res) => {
         setTypes(res.data);
         if (res.data.length > 0) {
-          setSelectedType(res.data[0]); // 첫 번째 타입을 기본 선택
-          // 필드 데이터를 가져오려면 추가 API 호출 필요
-          // 임시로 하드코딩된 fieldsData 사용
-          const fieldsData = {
-            types: {
-              webpage: {
-                fields: [
-                  { name: 'id', label: 'ID', required: true },
-                  { name: 'type', label: 'Type', required: true, default: 'webpage' },
-                  { name: 'title', label: '제목', required: true },
-                  { name: 'author', label: '저자', required: false },
-                  { name: 'container-title', label: '웹사이트 이름', required: false },
-                  { name: 'issued', label: '발행 날짜', required: true },
-                  { name: 'accessed', label: '접근 날짜', required: true },
-                  { name: 'URL', label: 'URL', required: true },
-                ],
-              },
-              // 다른 타입 추가 가능
-            },
-          };
-          setFields(fieldsData.types[res.data[0]]?.fields || []);
-          setFormData({ type: res.data[0] });
+          setSelectedType(res.data[0]);
+          axios
+            .get(`http://localhost:5000/fields/${res.data[0]}`)
+            .then((fieldRes) => {
+              setFields(fieldRes.data);
+              setFormData({ type: res.data[0] });
+            })
+            .catch((fieldErr) => {
+              console.error('필드 로드 오류:', fieldErr);
+              setError('필드를 로드할 수 없습니다.');
+            });
         }
       })
       .catch((err) => {
@@ -49,28 +38,17 @@ function App() {
       });
   }, []);
 
-  const handleTypeChange = (e) => {
+  const handleTypeChange = async (e) => {
     const type = e.target.value;
     setSelectedType(type);
-    // 임시로 하드코딩된 fieldsData 사용
-    const fieldsData = {
-      types: {
-        webpage: {
-          fields: [
-            { name: 'id', label: 'ID', required: true },
-            { name: 'type', label: 'Type', required: true, default: 'webpage' },
-            { name: 'title', label: '제목', required: true },
-            { name: 'author', label: '저자', required: false },
-            { name: 'container-title', label: '웹사이트 이름', required: false },
-            { name: 'issued', label: '발행 날짜', required: true },
-            { name: 'accessed', label: '접근 날짜', required: true },
-            { name: 'URL', label: 'URL', required: true },
-          ],
-        },
-      },
-    };
-    setFields(fieldsData.types[type]?.fields || []);
-    setFormData({ type }); // type 필드 초기화
+    setFormData({ type });
+    try {
+      const res = await axios.get(`http://localhost:5000/fields/${type}`);
+      setFields(res.data);
+    } catch (err) {
+      console.error('필드 로드 오류:', err);
+      setError('필드를 로드할 수 없습니다.');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -88,10 +66,10 @@ function App() {
           ...formData,
           type: selectedType,
           issued: formData.issued
-            ? { 'date-parts': [[parseInt(formData.issued.split('-')[0]), parseInt(formData.issued.split('-')[1]), parseInt(formData.issued.split('-')[2])]] }
+            ? { 'date-parts': [[parseInt(formData.issued.split('-')[0]), parseInt(formData.issued.split('-')[1] || 1), parseInt(formData.issued.split('-')[2] || 1)]] }
             : undefined,
           accessed: formData.accessed
-            ? { 'date-parts': [[parseInt(formData.accessed.split('-')[0]), parseInt(formData.accessed.split('-')[1]), parseInt(formData.accessed.split('-')[2])]] }
+            ? { 'date-parts': [[parseInt(formData.accessed.split('-')[0]), parseInt(formData.accessed.split('-')[1] || 1), parseInt(formData.accessed.split('-')[2] || 1)]] }
             : undefined,
         },
       });
@@ -130,6 +108,7 @@ function App() {
           </label>
           <input
             name={f.name}
+            type={f.name.includes('date') ? 'date' : 'text'}
             onChange={handleInputChange}
             value={formData[f.name] || ''}
             required={f.required}
@@ -137,7 +116,7 @@ function App() {
         </div>
       ))}
       <button onClick={generateCitation}>인용문 생성</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
       {citation && (
         <div>
           <h2>결과:</h2>
