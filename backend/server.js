@@ -13,6 +13,23 @@ app.use(cors());
 const fieldsPath = path.join(__dirname, 'fields.json');
 const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
 
+app.get('/types', (req, res) => {
+  const fieldsPath = path.join(__dirname, 'fields.json');
+  const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
+  res.json(Object.keys(fieldsData.types));
+});
+
+app.get('/fields/:type', (req, res) => {
+  const fieldsPath = ppath.join(__dirname, 'fields.json');
+  const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
+  const type = req.params.type;
+  if (fieldsData.types[type]) {
+    res.json(fieldsData.types[type].fields);
+  } else {
+    res.status(404).json({ error: 'Type not found' });
+  }
+});
+
 // API: 인용 생성
 app.post('/generate', (req, res) => {
   const { type, style, data } = req.body;  // type: 자료유형, style: APA/MLa/CMOS, data: 입력 객체

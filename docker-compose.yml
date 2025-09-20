@@ -20,6 +20,8 @@ services:
       - /app/node_modules  # 볼륨 최적화
     stdin_open: true
     tty: true
+    depends_on:
+      - backend # 백엔드가 먼저 시작되도록 보장
 
   # db:  # MySQL (초기 미사용, 필요시 활성화)
   #   image: mysql:8.0
