@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -8,21 +9,21 @@ const path = require('path');
 // CSL 플러그인 로드
 require('@citation-js/plugin-csl');
 
-// CSL 스타일 불러오기
-const mlaXML = fs.readFileSync(
-  path.join(__dirname, 'style/modern-language-association.csl'),
-  'utf8'
-);
-const chicagoXML = fs.readFileSync(
-  path.join(__dirname, 'style/chicago-author-date.csl'),
-  'utf8'
-);
+// CSL 스타일 불러오기 (모두 XML 파일)
+const styleFolder = path.join(__dirname, 'style');
+const apaXML = fs.readFileSync(path.join(styleFolder, 'apa.csl'), 'utf8');
+const mlaXML = fs.readFileSync(path.join(styleFolder, 'modern-language-association.csl'), 'utf8');
+const chicagoXML = fs.readFileSync(path.join(styleFolder, 'chicago-author-date.csl'), 'utf8');
 
-// citation-js에 스타일 등록
+// Citation-JS에 스타일 등록
+Cite.plugins.config.get('@csl').templates.add('apa', apaXML);
 Cite.plugins.config.get('@csl').templates.add('mla', mlaXML);
 Cite.plugins.config.get('@csl').templates.add('chicago', chicagoXML);
 
 const app = express();
+const PORT = 5000;
+
+// JSON 요청 본문 파싱
 app.use(bodyParser.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
 
@@ -45,9 +46,6 @@ app.get('/types', (req, res) => {
 app.get('/fields/:type', (req, res) => {
   try {
     const fieldsPath = path.join(__dirname, 'fields.json');
-    if (!fs.existsSync(fieldsPath)) {
-      throw new Error(`fields.json not found at ${fieldsPath}`);
-    }
     const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
     const type = req.params.type;
     if (fieldsData.types[type]) {
@@ -68,12 +66,14 @@ app.post('/generate', (req, res) => {
 
     // 스타일 매핑
     let template;
-    if (style.toLowerCase() === 'mla') {
+    if (style.toLowerCase() === 'apa') {
+      template = 'apa';
+    } else if (style.toLowerCase() === 'mla') {
       template = 'mla';
     } else if (style.toLowerCase() === 'chicago') {
       template = 'chicago';
     } else {
-      template = 'apa'; // 기본
+      return res.status(400).json({ error: `Unsupported style: ${style}` });
     }
 
     const fieldsPath = path.join(__dirname, 'fields.json');
@@ -87,15 +87,12 @@ app.post('/generate', (req, res) => {
     }
 
     const input = { ...data, type };
-    console.log('Input to Cite:', input);
-
     const cite = new Cite(input);
     const output = cite.format('bibliography', {
       format: 'text',
-      template
+      template, // CSL 스타일 이름 참조
     });
 
-    console.log('Generated citation:', output);
     res.json({ citation: output });
   } catch (err) {
     console.error('Error in /generate:', err.message);
@@ -103,5 +100,4 @@ app.post('/generate', (req, res) => {
   }
 });
 
-const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
