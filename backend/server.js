@@ -25,7 +25,21 @@ const PORT = 5000;
 
 // JSON 요청 본문 파싱
 app.use(bodyParser.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 
 // 자료 유형 목록 제공
 app.get('/types', (req, res) => {

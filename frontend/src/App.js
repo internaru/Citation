@@ -16,7 +16,7 @@ function App() {
     let mounted = true;
     const fetchTypes = async (retries = 3) => {
       try {
-        const res = await axios.get('http://localhost:5000/types', { timeout: 10000 });
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/types`, { timeout: 10000 });
         console.log('Types loaded:', res.data);
         if (mounted) {
           setTypes(res.data);
@@ -37,7 +37,7 @@ function App() {
 
     const fetchFields = async (type, retries = 3) => {
       try {
-        const res = await axios.get(`http://localhost:5000/fields/${type}`, { timeout: 10000 });
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/fields/${type}`, { timeout: 10000 });
         console.log('Loaded fields for', type, ':', res.data);
         if (mounted) {
           setFields(res.data);
@@ -65,7 +65,7 @@ function App() {
     setSelectedType(type);
     setFormData({ type });
     try {
-      const res = await axios.get(`http://localhost:5000/fields/${type}`, { timeout: 10000 });
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/fields/${type}`, { timeout: 10000 });
       console.log('Loaded fields for', type, ':', res.data);
       setFields(res.data);
     } catch (err) {
@@ -87,7 +87,7 @@ function App() {
     setError('');
     setCitation('');
     try {
-      const response = await axios.post('http://localhost:5000/generate', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/generate`, {
         type: selectedType,
         style: style.toLowerCase(),
         data: {
