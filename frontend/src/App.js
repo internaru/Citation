@@ -14,6 +14,7 @@ function App() {
 
   useEffect(() => {
     let mounted = true;
+
     const fetchTypes = async (retries = 3) => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/types`, { timeout: 10000 });
@@ -31,7 +32,7 @@ function App() {
           return fetchTypes(retries - 1);
         }
         console.error('Type load error:', err.message);
-        if (mounted) setError('타입 목록을 로드할 수 없습니다: ' + err.message);
+        if (mounted) setError('Unable to load types: ' + err.message);
       }
     };
 
@@ -41,7 +42,8 @@ function App() {
         console.log('Loaded fields for', type, ':', res.data);
         if (mounted) {
           setFields(res.data);
-          setFormData({ type });
+          // 초기 formData를 type만 세팅
+          setFormData({ type: type });
         }
       } catch (err) {
         if (retries > 0) {
@@ -49,16 +51,18 @@ function App() {
           return fetchFields(type, retries - 1);
         }
         console.error('Field load error:', err.message);
-        if (mounted) setError('필드를 로드할 수 없습니다: ' + err.message);
+        if (mounted) setError('Unable to load fields: ' + err.message);
       }
     };
 
     fetchTypes();
+
     return () => {
       mounted = false;
     };
   }, []);
 
+  // Source Type 변경 핸들러
   const handleTypeChange = async (e) => {
     const type = e.target.value;
     console.log('Selected type:', type);
@@ -70,12 +74,12 @@ function App() {
       setFields(res.data);
     } catch (err) {
       console.error('Field load error:', err.message);
-      setError('필드를 로드할 수 없습니다: ' + err.message);
+      setError('Unable to load types: ' + err.message);
     }
   };
 
+  // 일반 텍스트 입력 핸들러
   const handleInputChange = (e) => {
-    console.log(`Input change: ${e.target.name} = ${e.target.value}, type = ${e.target.type}`);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -83,10 +87,24 @@ function App() {
     console.log(`Input clicked: ${e.target.name}, type = ${e.target.type}`);
   };
 
+  // 인용문 생성
   const generateCitation = async () => {
     setError('');
     setCitation('');
     try {
+      // 날짜를 yyyy-MM-dd 문자열로 변환
+      const formatDate = (date) => {
+        if (!(date instanceof Date)) return undefined;
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
+      const dataToSend = { ...formData };
+      if (formData.issued) dataToSend.issued = formatDate(formData.issued);
+      if (formData.accessed) dataToSend.accessed = formatDate(formData.accessed);
+
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/generate`, {
         type: selectedType,
         style: style.toLowerCase(),
@@ -103,13 +121,14 @@ function App() {
       }, { timeout: 10000 });
       setCitation(response.data.citation);
     } catch (err) {
-      setError(err.response?.data?.error || '인용문 생성 중 오류가 발생했습니다: ' + err.message);
+      setError(err.response?.data?.error || 'Error generating quote: ' + err.message);
     }
   };
 
+  // 인용문 복사
   const copyCitation = () => {
     copy(citation);
-    alert('인용문이 복사되었습니다!');
+    alert('Copy completed!');
   };
 
   return (
@@ -126,7 +145,6 @@ function App() {
       <div className="field-row">
         <label className="field-label">Source Type*</label>
         <select className="field-input" onChange={handleTypeChange} value={selectedType}>
-          <option value="">유형 선택</option>
           {types.map((t) => (
             <option key={t} value={t}>
               {t}
@@ -140,24 +158,25 @@ function App() {
             {f.label}
             {f.required ? '*' : ''}
           </label>
-          <input
-            className="field-input"
-            name={f.name}
+            <input
+              className="field-input"
+              name={f.name}
             type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
-            onChange={handleInputChange}
+              onChange={handleInputChange}
             onClick={handleInputClick}
-            value={formData[f.name] || ''}
-            required={f.required}
-          />
+              value={formData[f.name] || ''}
+              required={f.required}
+            />
         </div>
       ))}
-      <button onClick={generateCitation}>인용문 생성</button>
+
+      <button onClick={generateCitation}>Cite Source</button>
       {error && <p className="error">{error}</p>}
       {citation && (
         <div>
           <h2>결과:</h2>
           <p>{citation}</p>
-          <button onClick={copyCitation}>복사</button>
+          <button onClick={copyCitation}>Copy to clipboard</button>
         </div>
       )}
     </div>
