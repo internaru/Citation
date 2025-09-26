@@ -3,6 +3,7 @@
     "webpage": {
       "fields": [
         { "name": "title", "label": "Title", "required": true },
+        { "name": "author", "label": "Author", "required": true },
         { "name": "issued", "label": "Issued Date", "required": true },
         { "name": "accessed", "label": "Accessed Date", "required": true },
         { "name": "URL", "label": "URL", "required": true }

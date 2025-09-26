@@ -42,8 +42,15 @@ function App() {
         console.log('Loaded fields for', type, ':', res.data);
         if (mounted) {
           setFields(res.data);
-          // 초기 formData를 type만 세팅
-          setFormData({ type: type });
+          const initialFormData = { type };
+          res.data.forEach(field => {
+            if (['author', 'editor', 'translator'].includes(field.name)) {
+              initialFormData[field.name] = [{ name: '' }]; // 배열로 초기화
+            } else {
+              initialFormData[field.name] = '';
+            }
+          });
+          setFormData(initialFormData);
         }
       } catch (err) {
         if (retries > 0) {
@@ -62,70 +69,86 @@ function App() {
     };
   }, []);
 
-  // Source Type 변경 핸들러
   const handleTypeChange = async (e) => {
     const type = e.target.value;
     console.log('Selected type:', type);
     setSelectedType(type);
-    setFormData({ type });
     try {
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/fields/${type}`, { timeout: 10000 });
       console.log('Loaded fields for', type, ':', res.data);
       setFields(res.data);
+      const initialFormData = { type };
+      res.data.forEach(field => {
+        if (['author', 'editor', 'translator'].includes(field.name)) {
+          initialFormData[field.name] = [{ name: '' }]; // 배열로 초기화
+        } else {
+          initialFormData[field.name] = '';
+        }
+      });
+      setFormData(initialFormData);
     } catch (err) {
       console.error('Field load error:', err.message);
-      setError('Unable to load types: ' + err.message);
+      setError('Unable to load fields: ' + err.message);
     }
   };
 
-  // 일반 텍스트 입력 핸들러
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (fieldName, index) => (e) => {
+    if (['author', 'editor', 'translator'].includes(fieldName)) {
+      const newArray = [...formData[fieldName]];
+      newArray[index] = { name: e.target.value };
+      setFormData({ ...formData, [fieldName]: newArray });
+    } else {
+      setFormData({ ...formData, [fieldName]: e.target.value });
+    }
   };
 
-  const handleInputClick = (e) => {
-    console.log(`Input clicked: ${e.target.name}, type = ${e.target.type}`);
+  const addFieldEntry = (fieldName) => {
+    if (['author', 'editor', 'translator'].includes(fieldName)) {
+      setFormData({
+        ...formData,
+        [fieldName]: [...formData[fieldName], { name: '' }],
+      });
+    }
   };
 
-  // 인용문 생성
+  const removeFieldEntry = (fieldName, index) => {
+    if (['author', 'editor', 'translator'].includes(fieldName) && formData[fieldName].length > 1) {
+      const newArray = formData[fieldName].filter((_, i) => i !== index);
+      setFormData({ ...formData, [fieldName]: newArray });
+    }
+  };
+
   const generateCitation = async () => {
     setError('');
     setCitation('');
     try {
-      // 날짜를 yyyy-MM-dd 문자열로 변환
       const formatDate = (date) => {
-        if (!(date instanceof Date)) return undefined;
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const dd = String(date.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
+        if (!date) return undefined;
+        const [yyyy, mm, dd] = date.split('-').map(Number);
+        return { 'date-parts': [[yyyy, mm || 1, dd || 1]] };
       };
 
-      const dataToSend = { ...formData };
-      if (formData.issued) dataToSend.issued = formatDate(formData.issued);
-      if (formData.accessed) dataToSend.accessed = formatDate(formData.accessed);
+      const dataToSend = {
+        ...formData,
+        issued: formData.issued ? formatDate(formData.issued) : undefined,
+        accessed: formData.accessed ? formatDate(formData.accessed) : undefined,
+      };
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/generate`, {
-        type: selectedType,
-        style: style.toLowerCase(),
-        data: {
-          ...formData,
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/generate`,
+        {
           type: selectedType,
-          issued: formData.issued
-            ? { 'date-parts': [[parseInt(formData.issued.split('-')[0]), parseInt(formData.issued.split('-')[1] || 1), parseInt(formData.issued.split('-')[2] || 1)]] }
-            : undefined,
-          accessed: formData.accessed
-            ? { 'date-parts': [[parseInt(formData.accessed.split('-')[0]), parseInt(formData.accessed.split('-')[1] || 1), parseInt(formData.accessed.split('-')[2] || 1)]] }
-            : undefined,
+          style: style.toLowerCase(),
+          data: dataToSend,
         },
-      }, { timeout: 10000 });
+        { timeout: 10000 }
+      );
       setCitation(response.data.citation);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error generating quote: ' + err.message);
+      setError(err.response?.data?.error || 'Error generating citation: ' + err.message);
     }
   };
 
-  // 인용문 복사
   const copyCitation = () => {
     copy(citation);
     alert('Copy completed!');
@@ -153,23 +176,54 @@ function App() {
         </select>
       </div>
       {fields.map((f) => (
-        <div key={f.name} className="field-row">
+        <div key={f.name} className="field-group">
           <label className="field-label">
             {f.label}
             {f.required ? '*' : ''}
           </label>
+          {['author', 'editor', 'translator'].includes(f.name) ? (
+            <div className="multi-field">
+              {formData[f.name]?.map((entry, index) => (
+                <div key={`${f.name}-${index}`} className="field-row multi-field-row">
+                  <input
+                    className="field-input"
+                    name={`${f.name}-${index}`}
+                    type="text"
+                    onChange={handleInputChange(f.name, index)}
+                    value={entry.name || ''}
+                    required={f.required && index === 0}
+                  />
+                  {formData[f.name].length > 1 && (
+                    <button
+                      type="button"
+                      className="remove-button"
+                      onClick={() => removeFieldEntry(f.name, index)}
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                className="add-button"
+                onClick={() => addFieldEntry(f.name)}
+              >
+                {f.label} 추가
+              </button>
+            </div>
+          ) : (
             <input
               className="field-input"
               name={f.name}
-            type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
-              onChange={handleInputChange}
-            onClick={handleInputClick}
+              type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
+              onChange={handleInputChange(f.name)}
               value={formData[f.name] || ''}
               required={f.required}
             />
+          )}
         </div>
       ))}
-
       <button onClick={generateCitation}>Cite Source</button>
       {error && <p className="error">{error}</p>}
       {citation && (

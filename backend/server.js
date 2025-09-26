@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -6,16 +5,13 @@ const Cite = require('citation-js');
 const fs = require('fs');
 const path = require('path');
 
-// CSL 플러그인 로드
 require('@citation-js/plugin-csl');
 
-// CSL 스타일 불러오기 (모두 XML 파일)
 const styleFolder = path.join(__dirname, 'style');
 const apaXML = fs.readFileSync(path.join(styleFolder, 'apa.csl'), 'utf8');
 const mlaXML = fs.readFileSync(path.join(styleFolder, 'modern-language-association.csl'), 'utf8');
 const chicagoXML = fs.readFileSync(path.join(styleFolder, 'chicago-author-date.csl'), 'utf8');
 
-// Citation-JS에 스타일 등록
 Cite.plugins.config.get('@csl').templates.add('apa', apaXML);
 Cite.plugins.config.get('@csl').templates.add('mla', mlaXML);
 Cite.plugins.config.get('@csl').templates.add('chicago', chicagoXML);
@@ -23,7 +19,6 @@ Cite.plugins.config.get('@csl').templates.add('chicago', chicagoXML);
 const app = express();
 const PORT = 5000;
 
-// JSON 요청 본문 파싱
 app.use(bodyParser.json());
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
@@ -40,8 +35,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
-// 자료 유형 목록 제공
 app.get('/types', (req, res) => {
   try {
     const fieldsPath = path.join(__dirname, 'fields.json');
@@ -56,7 +49,6 @@ app.get('/types', (req, res) => {
   }
 });
 
-// 특정 자료 유형 필드 제공
 app.get('/fields/:type', (req, res) => {
   try {
     const fieldsPath = path.join(__dirname, 'fields.json');
@@ -73,12 +65,10 @@ app.get('/fields/:type', (req, res) => {
   }
 });
 
-// 인용문 생성
 app.post('/generate', (req, res) => {
   try {
     const { type, style, data } = req.body;
 
-    // 스타일 매핑
     let template;
     if (style.toLowerCase() === 'apa') {
       template = 'apa';
@@ -93,7 +83,7 @@ app.post('/generate', (req, res) => {
     const fieldsPath = path.join(__dirname, 'fields.json');
     const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
     const typeFields = fieldsData.types[type]?.fields || [];
-    const missing = typeFields.filter(f => f.required && !data[f.name]);
+    const missing = typeFields.filter(f => f.required && (!data[f.name] || (Array.isArray(data[f.name]) && data[f.name].every(entry => !entry.name))));
     if (missing.length > 0) {
       return res.status(400).json({
         error: `Missing fields: ${missing.map(f => f.name).join(', ')}`
@@ -101,10 +91,16 @@ app.post('/generate', (req, res) => {
     }
 
     const input = { ...data, type };
+    ['author', 'editor', 'translator'].forEach(field => {
+      if (Array.isArray(data[field])) {
+        input[field] = data[field].filter(entry => entry.name).map(entry => ({ name: entry.name }));
+      }
+    });
+
     const cite = new Cite(input);
     const output = cite.format('bibliography', {
       format: 'text',
-      template, // CSL 스타일 이름 참조
+      template,
     });
 
     res.json({ citation: output });
