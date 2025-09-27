@@ -1,22 +1,98 @@
-.App {
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  height: 80px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ccc;
+  padding: 0 20px;
+}
+
+.header-logo {
+  height: 50px;
+  margin-right: 20px;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+.sidebar-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.sidebar-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-links li {
+  margin-bottom: 10px;
+}
+
+.sidebar-links a {
+  display: block;
+  padding: 8px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
   text-align: center;
+}
+
+.sidebar-links a:hover {
+  background-color: #0056b3;
+}
+
+.content {
+  flex: 1;
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
 }
 
-h1 {
-  margin-bottom: 20px;
-}
-
-.field-row {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-}
-
 .field-group {
-  margin: 10px 0;
+  margin-bottom: 15px;
 }
 
 .field-label {
@@ -24,11 +100,10 @@ h1 {
   text-align: right;
   margin-right: 10px;
   font-weight: bold;
+  display: inline-block;
 }
 
-.field-input,
-select,
-input {
+.field-input {
   width: 300px;
   padding: 8px;
   font-size: 16px;
@@ -38,9 +113,8 @@ input {
 }
 
 .multi-field {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .multi-field-row {
@@ -56,13 +130,12 @@ input {
   border: none;
   cursor: pointer;
   padding: 5px 10px;
-  margin: 5px 0 0 160px;
   border-radius: 4px;
+  margin-left: 10px;
 }
 
 .remove-button {
   background-color: #dc3545;
-  margin-left: 10px;
 }
 
 .add-button:hover {
@@ -73,21 +146,41 @@ input {
   background-color: #c82333;
 }
 
-button {
+.action-buttons {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.action-buttons button {
   background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   padding: 10px 20px;
-  margin-top: 10px;
+  margin: 0 10px;
   border-radius: 4px;
 }
 
-button:hover {
+.action-buttons button:hover {
   background-color: #0056b3;
 }
 
-p.error {
+.result-box {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.result-box h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.error {
   color: red;
   margin-top: 10px;
+  text-align: center;
 }

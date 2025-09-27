@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import copy from 'clipboard-copy';
 import './App.css';
+import logo from './resource/citation_block.png'; // 로고 이미지 가져오기
 
 function App() {
   const [types, setTypes] = useState([]);
@@ -45,7 +46,7 @@ function App() {
           const initialFormData = { type };
           res.data.forEach(field => {
             if (['author', 'editor', 'translator'].includes(field.name)) {
-              initialFormData[field.name] = [{ name: '' }]; // 배열로 초기화
+              initialFormData[field.name] = [{ name: '' }];
             } else {
               initialFormData[field.name] = '';
             }
@@ -80,7 +81,7 @@ function App() {
       const initialFormData = { type };
       res.data.forEach(field => {
         if (['author', 'editor', 'translator'].includes(field.name)) {
-          initialFormData[field.name] = [{ name: '' }]; // 배열로 초기화
+          initialFormData[field.name] = [{ name: '' }];
         } else {
           initialFormData[field.name] = '';
         }
@@ -155,84 +156,104 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>ICS Citation Generator (Ver1.0)</h1>
-      <div className="field-row">
-        <label className="field-label">Style*</label>
-        <select className="field-input" onChange={(e) => setStyle(e.target.value)} value={style}>
-          <option value="apa">APA</option>
-          <option value="mla">MLA</option>
-          <option value="chicago">CMOS</option>
-        </select>
-      </div>
-      <div className="field-row">
-        <label className="field-label">Source Type*</label>
-        <select className="field-input" onChange={handleTypeChange} value={selectedType}>
-          {types.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-      </div>
-      {fields.map((f) => (
-        <div key={f.name} className="field-group">
-          <label className="field-label">
-            {f.label}
-            {f.required ? '*' : ''}
-          </label>
-          {['author', 'editor', 'translator'].includes(f.name) ? (
-            <div className="multi-field">
-              {formData[f.name]?.map((entry, index) => (
-                <div key={`${f.name}-${index}`} className="field-row multi-field-row">
-                  <input
-                    className="field-input"
-                    name={`${f.name}-${index}`}
-                    type="text"
-                    onChange={handleInputChange(f.name, index)}
-                    value={entry.name || ''}
-                    required={f.required && index === 0}
-                  />
-                  {formData[f.name].length > 1 && (
-                    <button
-                      type="button"
-                      className="remove-button"
-                      onClick={() => removeFieldEntry(f.name, index)}
-                    >
-                      삭제
-                    </button>
-                  )}
-                </div>
+    <div className="app-container">
+      <header className="header">
+        <img src={logo} alt="Logo" className="header-logo" />
+        <h1>ICS Citation Generator</h1>
+      </header>
+      <div className="main-content">
+        <aside className="sidebar">
+          <h2>Options</h2>
+          <div className="sidebar-section">
+            <label className="sidebar-label">Style*</label>
+            <select className="sidebar-input" onChange={(e) => setStyle(e.target.value)} value={style}>
+              <option value="apa">APA</option>
+              <option value="mla">MLA</option>
+              <option value="chicago">CMOS</option>
+            </select>
+          </div>
+          <div className="sidebar-section">
+            <label className="sidebar-label">Source Type*</label>
+            <select className="sidebar-input" onChange={handleTypeChange} value={selectedType}>
+              {types.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
-              <button
-                type="button"
-                className="add-button"
-                onClick={() => addFieldEntry(f.name)}
-              >
-                {f.label} 추가
-              </button>
+            </select>
+          </div>
+          <div className="sidebar-section">
+            <h3>Reference Link</h3>
+            <ul className="sidebar-links">
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html" target="_blank">APA Guide</a></li>
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_general_format.html" target="_blank">MLA Guide</a></li>
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/chicago_manual_18th_edition/cmos_formatting_and_style_guide/general_format.html" target="_blank">CMOS Guide</a></li>
+            </ul>
+          </div>
+        </aside>
+        <main className="content">
+          {fields.map((f) => (
+            <div key={f.name} className="field-group">
+              <label className="field-label">
+                {f.label}
+                {f.required ? '*' : ''}
+              </label>
+              {['author', 'editor', 'translator'].includes(f.name) ? (
+                <div className="multi-field">
+                  {formData[f.name]?.map((entry, index) => (
+                    <div key={`${f.name}-${index}`} className="field-row multi-field-row">
+                      <input
+                        className="field-input"
+                        name={`${f.name}-${index}`}
+                        type="text"
+                        onChange={handleInputChange(f.name, index)}
+                        value={entry.name || ''}
+                        required={f.required && index === 0}
+                      />
+                      {formData[f.name].length > 1 && (
+                        <button
+                          type="button"
+                          className="remove-button"
+                          onClick={() => removeFieldEntry(f.name, index)}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="add-button"
+                    onClick={() => addFieldEntry(f.name)}
+                  >
+                    Add {f.label} 
+                  </button>
+                </div>
+              ) : (
+                <input
+                  className="field-input"
+                  name={f.name}
+                  type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
+                  onChange={handleInputChange(f.name)}
+                  value={formData[f.name] || ''}
+                  required={f.required}
+                />
+              )}
             </div>
-          ) : (
-            <input
-              className="field-input"
-              name={f.name}
-              type={['issued', 'accessed'].includes(f.name) ? 'date' : 'text'}
-              onChange={handleInputChange(f.name)}
-              value={formData[f.name] || ''}
-              required={f.required}
-            />
+          ))}
+          <div className="action-buttons">
+            <button onClick={generateCitation}>Cite Source</button>
+            {citation && <button onClick={copyCitation}>Copy to Clipboard</button>}
+          </div>
+          {error && <p className="error">{error}</p>}
+          {citation && (
+            <div className="result-box">
+              <h2>Result:</h2>
+              <p>{citation}</p>
+            </div>
           )}
-        </div>
-      ))}
-      <button onClick={generateCitation}>Cite Source</button>
-      {error && <p className="error">{error}</p>}
-      {citation && (
-        <div>
-          <h2>결과:</h2>
-          <p>{citation}</p>
-          <button onClick={copyCitation}>Copy to clipboard</button>
-        </div>
-      )}
+        </main>
+      </div>
     </div>
   );
 }
