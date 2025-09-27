@@ -46,7 +46,7 @@ function App() {
           const initialFormData = { type };
           res.data.forEach(field => {
             if (['author', 'editor', 'translator'].includes(field.name)) {
-              initialFormData[field.name] = [{ name: '' }];
+              initialFormData[field.name] = [{ given: '', family: '', middle: '', suffix: '' }];
             } else {
               initialFormData[field.name] = '';
             }
@@ -81,7 +81,7 @@ function App() {
       const initialFormData = { type };
       res.data.forEach(field => {
         if (['author', 'editor', 'translator'].includes(field.name)) {
-          initialFormData[field.name] = [{ name: '' }];
+          initialFormData[field.name] = [{ given: '', family: '', middle: '', suffix: '' }];
         } else {
           initialFormData[field.name] = '';
         }
@@ -93,10 +93,10 @@ function App() {
     }
   };
 
-  const handleInputChange = (fieldName, index) => (e) => {
+  const handleInputChange = (fieldName, index, subField) => (e) => {
     if (['author', 'editor', 'translator'].includes(fieldName)) {
       const newArray = [...formData[fieldName]];
-      newArray[index] = { name: e.target.value };
+      newArray[index] = { ...newArray[index], [subField]: e.target.value };
       setFormData({ ...formData, [fieldName]: newArray });
     } else {
       setFormData({ ...formData, [fieldName]: e.target.value });
@@ -107,7 +107,7 @@ function App() {
     if (['author', 'editor', 'translator'].includes(fieldName)) {
       setFormData({
         ...formData,
-        [fieldName]: [...formData[fieldName], { name: '' }],
+        [fieldName]: [...formData[fieldName], { given: '', family: '', middle: '', suffix: '' }],
       });
     }
   };
@@ -201,15 +201,49 @@ function App() {
               {['author', 'editor', 'translator'].includes(f.name) ? (
                 <div className="multi-field">
                   {formData[f.name]?.map((entry, index) => (
-                    <div key={`${f.name}-${index}`} className="field-row multi-field-row">
-                      <input
-                        className="field-input"
-                        name={`${f.name}-${index}`}
-                        type="text"
-                        onChange={handleInputChange(f.name, index)}
-                        value={entry.name || ''}
-                        required={f.required && index === 0}
-                      />
+                    <div key={`${f.name}-${index}`} className="multi-field-row">
+                      <div className="name-field">
+                        <span className="name-label">First Name</span>
+                        <input
+                          className="field-input"
+                          name={`${f.name}-${index}-given`}
+                          type="text"
+                          onChange={handleInputChange(f.name, index, 'given')}
+                          value={entry.given || ''}
+                          required={f.required && index === 0}
+                        />
+                      </div>
+                      <div className="name-field">
+                        <span className="name-label">Middle Name</span>
+                        <input
+                          className="field-input"
+                          name={`${f.name}-${index}-middle`}
+                          type="text"
+                          onChange={handleInputChange(f.name, index, 'middle')}
+                          value={entry.middle || ''}
+                        />
+                      </div>
+                      <div className="name-field">
+                        <span className="name-label">Last Name</span>
+                        <input
+                          className="field-input"
+                          name={`${f.name}-${index}-family`}
+                          type="text"
+                          onChange={handleInputChange(f.name, index, 'family')}
+                          value={entry.family || ''}
+                          required={f.required && index === 0}
+                        />
+                      </div>
+                      <div className="name-field">
+                        <span className="name-label">Suffix</span>
+                        <input
+                          className="field-input"
+                          name={`${f.name}-${index}-suffix`}
+                          type="text"
+                          onChange={handleInputChange(f.name, index, 'suffix')}
+                          value={entry.suffix || ''}
+                        />
+                      </div>
                       {formData[f.name].length > 1 && (
                         <button
                           type="button"

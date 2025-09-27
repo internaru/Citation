@@ -83,7 +83,7 @@ app.post('/generate', (req, res) => {
     const fieldsPath = path.join(__dirname, 'fields.json');
     const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
     const typeFields = fieldsData.types[type]?.fields || [];
-    const missing = typeFields.filter(f => f.required && (!data[f.name] || (Array.isArray(data[f.name]) && data[f.name].every(entry => !entry.name))));
+    const missing = typeFields.filter(f => f.required && (!data[f.name] || (Array.isArray(data[f.name]) && data[f.name].every(entry => !entry.given && !entry.family))));
     if (missing.length > 0) {
       return res.status(400).json({
         error: `Missing fields: ${missing.map(f => f.name).join(', ')}`
@@ -93,7 +93,12 @@ app.post('/generate', (req, res) => {
     const input = { ...data, type };
     ['author', 'editor', 'translator'].forEach(field => {
       if (Array.isArray(data[field])) {
-        input[field] = data[field].filter(entry => entry.name).map(entry => ({ name: entry.name }));
+        input[field] = data[field].filter(entry => entry.given || entry.family).map(entry => ({
+          given: entry.given || undefined,
+          family: entry.family || undefined,
+          middle: entry.middle || undefined,
+          suffix: entry.suffix || undefined,
+        }));
       }
     });
 
