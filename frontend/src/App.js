@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import copy from 'clipboard-copy';
+import { FaTrash } from 'react-icons/fa';
 import './App.css';
-import logo from './resource/citation_block.png'; // 로고 이미지 가져오기
+import logo from './resource/citation_block.png';
 
 function App() {
   const [types, setTypes] = useState([]);
@@ -249,8 +250,9 @@ function App() {
                           type="button"
                           className="remove-button"
                           onClick={() => removeFieldEntry(f.name, index)}
+                          title="Delete"
                         >
-                          Delete
+                          <FaTrash size={11} />
                         </button>
                       )}
                     </div>
@@ -260,7 +262,7 @@ function App() {
                     className="add-button"
                     onClick={() => addFieldEntry(f.name)}
                   >
-                    Add {f.label} 
+                    Add {f.label}
                   </button>
                 </div>
               ) : (
