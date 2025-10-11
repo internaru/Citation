@@ -116,6 +116,11 @@
   border-radius: 4px;
   border: 1px solid #ccc;
   box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.field-input[required] {
+  background-color: #e6ffe6;
 }
 
 .multi-field {
@@ -125,7 +130,7 @@
 
 .multi-field-row {
   display: flex;
-  align-items: flex-start; /* 상단 정렬로 변경 */
+  align-items: flex-start;
   margin-bottom: 10px;
 }
 
@@ -162,7 +167,7 @@
 
 .remove-button {
   background-color: #dc3545;
-  margin-top: 17px; /* 입력 필드 하단과 버튼 하단 정렬 */
+  margin-top: 17px;
 }
 
 .add-button:hover {

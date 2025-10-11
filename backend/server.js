@@ -83,10 +83,10 @@ app.post('/generate', (req, res) => {
     const fieldsPath = path.join(__dirname, 'fields.json');
     const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, 'utf8'));
     const typeFields = fieldsData.types[type]?.fields || [];
-    const missing = typeFields.filter(f => f.required && (!data[f.name] || (Array.isArray(data[f.name]) && data[f.name].every(entry => !entry.given && !entry.family))));
+    const missing = typeFields.filter(f => f.required && (!data[f.name] || (Array.isArray(data[f.name]) && data[f.name].every(entry => !entry.given || !entry.family))));
     if (missing.length > 0) {
       return res.status(400).json({
-        error: `Missing fields: ${missing.map(f => f.name).join(', ')}`
+        error: `Missing required fields: ${missing.map(f => f.label).join(', ')} (First Name and Last Name are required)`
       });
     }
 

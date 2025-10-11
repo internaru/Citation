@@ -186,9 +186,9 @@ function App() {
           <div className="sidebar-section">
             <h3>Reference Link</h3>
             <ul className="sidebar-links">
-              <li><a href="https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html" target="_blank">APA Guide</a></li>
-              <li><a href="https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_general_format.html" target="_blank">MLA Guide</a></li>
-              <li><a href="https://owl.purdue.edu/owl/research_and_citation/chicago_manual_18th_edition/cmos_formatting_and_style_guide/general_format.html" target="_blank">CMOS Guide</a></li>
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html" target="_blank" rel="noreferrer">APA Guide</a></li>
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/mla_style/mla_formatting_and_style_guide/mla_general_format.html" target="_blank" rel="noreferrer">MLA Guide</a></li>
+              <li><a href="https://owl.purdue.edu/owl/research_and_citation/chicago_manual_18th_edition/cmos_formatting_and_style_guide/general_format.html" target="_blank" rel="noreferrer">CMOS Guide</a></li>
             </ul>
           </div>
         </aside>
@@ -211,7 +211,7 @@ function App() {
                           type="text"
                           onChange={handleInputChange(f.name, index, 'given')}
                           value={entry.given || ''}
-                          required={f.required && index === 0}
+                          required={f.required}
                         />
                       </div>
                       <div className="name-field">
@@ -232,7 +232,7 @@ function App() {
                           type="text"
                           onChange={handleInputChange(f.name, index, 'family')}
                           value={entry.family || ''}
-                          required={f.required && index === 0}
+                          required={f.required}
                         />
                       </div>
                       <div className="name-field">
