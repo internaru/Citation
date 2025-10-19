@@ -1,0 +1,9 @@
+# frontend/.dockerignore
+node_modules/           # npm 설치된 의존성 (Dockerfile에서 npm install)
+npm-debug.log          # npm 로그 파일
+.env                   # 환경 변수 파일 (docker-compose.yml에서 env_file로 처리)
+.git/                  # Git 관련 파일
+.gitignore             # Git 설정 파일
+Dockerfile             # 자체 제외
+*.md                   # README 등 문서 파일
+*.log                  # 로그 파일
