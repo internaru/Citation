@@ -10,7 +10,7 @@ services:
     # depends_on:
     #   - db  # MySQL 필요시
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     command: npx nodemon server.js  # nodemon으로 핫 리로딩 활성화
 
   frontend:
@@ -23,7 +23,7 @@ services:
       - ./frontend/src:/app/src  # src만 마운트하여 빠른 반영
       - /app/node_modules  # 볼륨 최적화
     environment:
-      - CHOKIDAR_USEPOLLING=true  # React 핫 리로딩
+      - CHOKIDAR_USEPOLLING=false  # React 핫 리로딩
     stdin_open: true
     tty: true
     depends_on:
